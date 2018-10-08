@@ -64,6 +64,16 @@ def playUfoScore(ai_settings, screen, entity):
         screen.blit(msg_image, msg_image_rect)
         pygame.display.flip()
 
+def shipShoot():
+    pygame.mixer.init()
+    pygame.mixer.music.load("files/Laser.wav")
+    pygame.mixer.music.play()
+
+def alienShoot():
+    pygame.mixer.init()
+    pygame.mixer.music.load("files/AlienLaser.wav")
+    pygame.mixer.music.play()
+
 def ship_hit(ai_settings, screen, stats, sb, ship, aliens, bullets, lasers, bunkers, ufo):
     if stats.ships_left > 0:
         stats.ships_left -= 1
@@ -150,6 +160,7 @@ def check_keydown_events(event, ai_settings, screen, ship, bullets):
     elif event.key == pygame.K_LEFT:
         ship.moving_left = True
     elif event.key == pygame.K_SPACE:
+        shipShoot()
         fire_bullet(ai_settings, screen, ship, bullets)
 
 
@@ -233,7 +244,6 @@ def updateScreen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_but
     for laser in lasers.sprites():
         laser.draw_laser()
     ship.blitMe()
-    # aliens.blitme()
     aliens.draw(screen)
     bunkers.draw(screen)
     ufo.draw(screen)
@@ -241,14 +251,13 @@ def updateScreen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_but
     pygame.display.flip()
 
 def check_bullet_collision(ai_settings, screen, stats, sb, ship, aliens, bullets, lasers, bunkers, ufo):
-    collisions = pygame.sprite.groupcollide(bullets, aliens, True, False)
+    collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
     collisions2 = pygame.sprite.groupcollide(bullets, ufo, True, True)
 
     if collisions:
         for aliensz in collisions.values():
             for alien in aliensz:
                 playExplosion(screen, alien)
-                aliens.remove(alien)
             stats.score += ai_settings.alien_points * len(aliensz)
             sb.prep_score()
         check_high_score(stats, sb)
@@ -279,7 +288,6 @@ def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, lasers
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
     check_bullet_collision(ai_settings, screen, stats, sb, ship, aliens, bullets, lasers, bunkers, ufo)
-    # print(len(bullets))
 
 def check_laser_collision(ai_settings, screen, stats, sb, ship, aliens, bullets, lasers, bunkers, ufo):
     collisions = pygame.sprite.groupcollide(bullets, lasers, True, True)
@@ -300,9 +308,10 @@ def fire_laser(ai_settings, screen, aliens, lasers):
     now = time.time()
     sec = now % 60
     if int(sec) % randint(30, 60) == 0 and len(lasers) < ai_settings.lasers_allowed and len(aliens) > 0:
-        alienShoot = randint(0, len(aliens) - 1)
-        new_laser = Laser(ai_settings, screen, list(aliens)[alienShoot])
+        alienShooter = randint(0, len(aliens) - 1)
+        new_laser = Laser(ai_settings, screen, list(aliens)[alienShooter])
         lasers.add(new_laser)
+        alienShoot()
 
 def get_number_bunker_x(ai_settings, alien_width):
     available_space_x = ai_settings.screenWidth - alien_width

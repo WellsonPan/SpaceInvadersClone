@@ -1,4 +1,3 @@
-import sys
 import vlc
 import pygame
 import pygame.time
@@ -7,7 +6,6 @@ from ship import Ship
 import game_functions as gf
 from pygame.sprite import Group
 from pygame.sprite import GroupSingle
-# from alien import Alien # this is supposed to be used with the commented alien below
 from game_stats import GameStats
 from button import Button
 from scoreboard import Scoreboard
@@ -16,7 +14,6 @@ from button import highScore
 
 def runGame():
     pygame.init()
-    # this sets the size of the game
     ai_settings = Settings()
     screen = pygame.display.set_mode((ai_settings.screenWidth, ai_settings.screenHeight))
     pygame.display.set_caption("Alien Invasion")
@@ -38,21 +35,16 @@ def runGame():
     aliens = Group()
     lasers = Group()
     ufo = GroupSingle()
-    # alien = Alien(ai_settings, screen)
 
     #Bunker
     bunkers = Group()
     gf.create_fleet(ai_settings, screen, ship, aliens)
 
-    # this chooses the color
-    # backGroundColor = (220, 230, 230)
     startScreen = Start(ai_settings, screen)
     soundFile = vlc.MediaPlayer("files/SpaceInvaders.mp3")
 
     while True:
-        # this turns the screen to the chosen color
         clock.tick(62)
-        # print(ai_settings.ufo_direction)
         gf.check_events(ai_settings, screen, stats, sb, play_button, ship, aliens, bullets, bunkers, high, ufo)
         if stats.game_active:
             soundFile.play()
